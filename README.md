@@ -82,15 +82,6 @@ SolCare integrates **Zero-Knowledge Proofs (zk)** to protect:
 
 ---
 
-## 👩‍💻 Team SolCare
-
-| Name | Role |
-|------|------|
-| Pragya Hurmade | Technical Lead / Full Stack Developer |
-| [Your teammates if any] | Smart Contract / AI Integration |
-
----
-
 ## 🧾 License
 
 This project is licensed under the **MIT License** — free to use and build upon.
