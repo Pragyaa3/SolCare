@@ -61,5 +61,40 @@ SolCare integrates **Zero-Knowledge Proofs (zk)** to protect:
 
 ---
 
-## 🧱 Architecture Overview
+## 🚀 Features
 
+- ⚡ **Instant verified emergency aid**  
+- 🏦 **Micro-loans for street vendors**  
+- 🧾 **AI + ZK document verification**  
+- 🔗 **Funds go directly to hospitals**  
+- 💸 **Refund unused funds automatically**  
+- 🗳️ **Community-driven DAO governance**  
+- 🌍 **On-chain transparency with privacy**  
+
+---
+
+## 🧠 Future Enhancements
+
+- Integrate **UPI auto-deduction** for vendor repayments.  
+- Add **mobile app version** with Solana Mobile Stack (SMS).  
+- Onboard **hospitals & NGOs** as verified SolCare partners.  
+- Implement **reputation scoring** for donors and vendors.
+
+---
+
+## 👩‍💻 Team SolCare
+
+| Name | Role |
+|------|------|
+| Pragya Hurmade | Technical Lead / Full Stack Developer |
+| [Your teammates if any] | Smart Contract / AI Integration |
+
+---
+
+## 🧾 License
+
+This project is licensed under the **MIT License** — free to use and build upon.
+
+---
+
+> 💙 SolCare bridges compassion and technology — because saving lives shouldn’t depend on bureaucracy.
