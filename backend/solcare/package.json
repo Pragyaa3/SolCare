@@ -5,7 +5,8 @@
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.31.1"
+    "@coral-xyz/anchor": "0.32.1",
+    "@solana/wallet-adapter-react": "^0.15.39"
   },
   "devDependencies": {
     "chai": "^4.3.4",

@@ -4,6 +4,11 @@ members = [
 ]
 resolver = "2"
 
+[workspace.dependencies]
+toml_datetime = "=0.6.8"
+toml_edit = "=0.21.0"
+indexmap = "=2.2.6"
+
 [profile.release]
 overflow-checks = true
 lto = "fat"
@@ -12,3 +17,4 @@ codegen-units = 1
 opt-level = 3
 incremental = false
 codegen-units = 1
+
