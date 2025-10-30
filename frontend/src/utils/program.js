@@ -3,7 +3,6 @@ import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
 
 export const PROGRAM_ID = new PublicKey('ExXRXq98DzqwjMRedc4h9WUxs8EcxvKYeky3pHosvfDj');
 
-// IDL for the program
 export const IDL = {
   "version": "0.1.0",
   "name": "solcare",
@@ -108,7 +107,6 @@ export const IDL = {
   ]
 };
 
-// Get platform PDA
 export function getPlatformPDA() {
   const [pda] = PublicKey.findProgramAddressSync(
     [Buffer.from('platform')],
@@ -117,7 +115,6 @@ export function getPlatformPDA() {
   return pda;
 }
 
-// Get program instance
 export function getProgram(wallet, connection) {
   const provider = new AnchorProvider(
     connection,
@@ -127,8 +124,39 @@ export function getProgram(wallet, connection) {
   return new Program(IDL, PROGRAM_ID, provider);
 }
 
-// Request a loan
+// 🔥 NEW: Auto-initialize platform if needed
+export async function ensurePlatformInitialized(wallet, connection) {
+  const program = getProgram(wallet, connection);
+  const platformPDA = getPlatformPDA();
+
+  try {
+    await program.account.platform.fetch(platformPDA);
+    return true; // Already initialized
+  } catch (error) {
+    console.log("📝 Platform not initialized, creating...");
+    try {
+      const tx = await program.methods
+        .initializePlatform()
+        .accounts({
+          platform: platformPDA,
+          authority: wallet.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+      
+      console.log("✅ Platform initialized! Tx:", tx);
+      return true;
+    } catch (initError) {
+      console.error("❌ Failed to initialize platform:", initError);
+      throw new Error("Could not initialize platform. Please try again.");
+    }
+  }
+}
+
+// 🔥 UPDATED: Request loan with auto-init
 export async function requestLoan(wallet, connection, amount, purpose) {
+  await ensurePlatformInitialized(wallet, connection);
+  
   const program = getProgram(wallet, connection);
   const platformPDA = getPlatformPDA();
   const loanKeypair = web3.Keypair.generate();
@@ -147,8 +175,10 @@ export async function requestLoan(wallet, connection, amount, purpose) {
   return { signature: tx, loanAccount: loanKeypair.publicKey };
 }
 
-// Post emergency
+// 🔥 UPDATED: Post emergency with auto-init
 export async function postEmergency(wallet, connection, amount, description, documentHash) {
+  await ensurePlatformInitialized(wallet, connection);
+  
   const program = getProgram(wallet, connection);
   const platformPDA = getPlatformPDA();
   const emergencyKeypair = web3.Keypair.generate();
