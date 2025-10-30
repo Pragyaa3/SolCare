@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { Activity, CheckCircle, Clock, Shield, TrendingUp, AlertCircle, Eye, Loader2 } from 'lucide-react';
+import { Activity, CheckCircle, Clock, Shield, TrendingUp, Eye, Loader2, Sparkles } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function HospitalDashboard() {
@@ -53,7 +53,7 @@ export default function HospitalDashboard() {
       return;
     }
 
-    const toastId = toast.loading("Verifying case...");
+    const toastId = toast.loading("🏥 Verifying case...");
     setLoading(true);
 
     try {
@@ -64,8 +64,11 @@ export default function HospitalDashboard() {
       
       toast.success(
         <div>
-          <p className="font-bold">Case Verified! ✅</p>
-          <p className="text-sm">Case ID: {requestId}</p>
+          <p className="font-bold flex items-center gap-2">
+            <CheckCircle size={18} className="text-green-400" />
+            Case Verified Successfully! ✅
+          </p>
+          <p className="text-sm text-gray-300">Case ID: {requestId}</p>
         </div>,
         { id: toastId, duration: 4000 }
       );
@@ -79,16 +82,16 @@ export default function HospitalDashboard() {
   };
 
   const getAiScoreColor = (score) => {
-    if (score >= 90) return 'text-green-600 bg-green-100 border-green-200';
-    if (score >= 75) return 'text-yellow-600 bg-yellow-100 border-yellow-200';
-    return 'text-red-600 bg-red-100 border-red-200';
+    if (score >= 90) return 'text-green-400 bg-green-500/20 border-green-500/50';
+    if (score >= 75) return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/50';
+    return 'text-red-400 bg-red-500/20 border-red-500/50';
   };
 
   const getUrgencyColor = (urgency) => {
     switch(urgency) {
-      case 'Critical': return 'bg-red-100 text-red-700 border-red-300';
-      case 'High': return 'bg-orange-100 text-orange-700 border-orange-300';
-      default: return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      case 'Critical': return 'bg-red-500/20 text-red-300 border-red-500/50';
+      case 'High': return 'bg-orange-500/20 text-orange-300 border-orange-500/50';
+      default: return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50';
     }
   };
 
@@ -98,17 +101,21 @@ export default function HospitalDashboard() {
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">Hospital Dashboard</h1>
-          <p className="text-gray-600 text-lg">Verify emergency cases and manage fund withdrawals</p>
+          <h1 className="text-4xl md:text-5xl font-black mb-2">
+            <span className="bg-gradient-to-r from-red-400 via-pink-400 to-rose-400 bg-clip-text text-transparent">
+              Hospital Dashboard
+            </span>
+          </h1>
+          <p className="text-gray-400 text-lg">Verify emergency cases & manage withdrawals</p>
         </div>
         <WalletMultiButton />
       </div>
 
       {!wallet.connected ? (
-        <div className="bg-gradient-to-br from-red-50 via-pink-50 to-rose-50 rounded-3xl p-12 text-center border-2 border-dashed border-red-300 shadow-xl">
-          <div className="text-7xl mb-6">🏥</div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Hospital Verification Portal</h2>
-          <p className="text-gray-600 mb-8 text-lg max-w-md mx-auto">
+        <div className="glass rounded-3xl p-12 text-center border-2 border-red-500/30 shadow-2xl animate-scale-in">
+          <div className="text-7xl mb-6 animate-float">🏥</div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Hospital Verification Portal</h2>
+          <p className="text-gray-300 mb-8 text-lg max-w-md mx-auto">
             Connect your authorized hospital wallet to verify emergency cases
           </p>
           <WalletMultiButton />
@@ -117,69 +124,64 @@ export default function HospitalDashboard() {
         <>
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-gray-100">
-              <Clock size={32} className="text-red-600 mb-3" />
-              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">{pendingRequests.length}</h3>
-              <p className="text-gray-600 text-sm">Pending</p>
-            </div>
-            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-gray-100">
-              <CheckCircle size={32} className="text-green-600 mb-3" />
-              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">{verifiedCases.length}</h3>
-              <p className="text-gray-600 text-sm">Verified</p>
-            </div>
-            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-gray-100">
-              <TrendingUp size={32} className="text-blue-600 mb-3" />
-              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">47.5</h3>
-              <p className="text-gray-600 text-sm">SOL Available</p>
-            </div>
-            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-gray-100">
-              <Shield size={32} className="text-purple-600 mb-3" />
-              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">96%</h3>
-              <p className="text-gray-600 text-sm">AI Accuracy</p>
-            </div>
+            {[
+              { icon: Clock, color: 'red', label: 'Pending', value: pendingRequests.length },
+              { icon: CheckCircle, color: 'green', label: 'Verified', value: verifiedCases.length },
+              { icon: TrendingUp, color: 'blue', label: 'SOL Available', value: '47.5' },
+              { icon: Shield, color: 'purple', label: 'AI Accuracy', value: '96%' }
+            ].map((stat, i) => (
+              <div key={i} className={`glass-dark rounded-2xl p-4 md:p-6 border border-${stat.color}-500/30 hover:border-${stat.color}-500/50 transition-all card-hover`}>
+                <stat.icon size={32} className={`text-${stat.color}-400 mb-3`} />
+                <h3 className="text-3xl md:text-4xl font-black text-white mb-1">{stat.value}</h3>
+                <p className="text-gray-400 text-sm">{stat.label}</p>
+              </div>
+            ))}
           </div>
 
           {/* Pending Requests */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Pending Verification</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                <Sparkles className="text-purple-400" />
+                Pending Verification
+              </h2>
               <div className="flex items-center gap-2 text-sm">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-gray-600 hidden md:inline">AI Pre-screened</span>
+                <span className="text-gray-400 hidden md:inline">AI Pre-screened</span>
               </div>
             </div>
 
             <div className="grid gap-6">
               {pendingRequests.map((request) => (
-                <div key={request.id} className="bg-white rounded-2xl md:rounded-3xl shadow-lg border border-gray-100 p-4 md:p-6 hover:shadow-xl transition-all">
+                <div key={request.id} className="glass-dark rounded-2xl md:rounded-3xl shadow-2xl border border-white/10 p-4 md:p-6 hover:border-purple-500/50 transition-all card-hover">
                   <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
                         <div>
-                          <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">{request.patient}</h3>
-                          <p className="text-gray-600">{request.age} years • {request.condition}</p>
+                          <h3 className="text-xl md:text-2xl font-bold text-white mb-1">{request.patient}</h3>
+                          <p className="text-gray-400">{request.age} years • {request.condition}</p>
                         </div>
-                        <div className={`px-3 py-1 rounded-full text-sm font-bold border-2 ${getUrgencyColor(request.urgency)}`}>
+                        <div className={`px-3 py-1 rounded-full text-sm font-bold border-2 ${getUrgencyColor(request.urgency)} backdrop-blur-sm`}>
                           {request.urgency}
                         </div>
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-4 mb-4">
-                        <div className="bg-gray-50 rounded-xl p-4">
-                          <p className="text-sm text-gray-600 mb-1">Amount</p>
-                          <p className="text-2xl font-bold text-gray-900">{request.amount} SOL</p>
+                        <div className="glass rounded-xl p-4 border border-white/10">
+                          <p className="text-sm text-gray-400 mb-1">Amount</p>
+                          <p className="text-2xl font-bold text-white">{request.amount} SOL</p>
                         </div>
-                        <div className="bg-gray-50 rounded-xl p-4">
-                          <p className="text-sm text-gray-600 mb-1">Submitted</p>
-                          <p className="text-lg font-semibold text-gray-900">{request.submittedDate}</p>
+                        <div className="glass rounded-xl p-4 border border-white/10">
+                          <p className="text-sm text-gray-400 mb-1">Submitted</p>
+                          <p className="text-lg font-semibold text-white">{request.submittedDate}</p>
                         </div>
                       </div>
 
                       <div className="mb-4">
-                        <p className="text-sm font-bold text-gray-700 mb-2">Documents:</p>
+                        <p className="text-sm font-bold text-gray-300 mb-2">Documents:</p>
                         <div className="flex flex-wrap gap-2">
                           {request.documents.map((doc, i) => (
-                            <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
+                            <span key={i} className="px-3 py-1 glass text-blue-400 rounded-lg text-sm font-medium border border-blue-500/30">
                               📄 {doc}
                             </span>
                           ))}
@@ -188,14 +190,14 @@ export default function HospitalDashboard() {
                     </div>
 
                     <div className="lg:w-64">
-                      <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 mb-4 border-2 border-purple-200">
-                        <p className="text-sm text-purple-600 font-bold mb-2 text-center">AI Score</p>
-                        <div className={`inline-block w-full text-center px-4 py-2 rounded-xl font-bold text-3xl border-2 ${getAiScoreColor(request.aiScore)}`}>
+                      <div className="glass rounded-2xl p-6 mb-4 border-2 border-purple-500/30 animate-glow">
+                        <p className="text-sm text-purple-300 font-bold mb-2 text-center">AI Score</p>
+                        <div className={`w-full text-center px-4 py-2 rounded-xl font-bold text-3xl border-2 ${getAiScoreColor(request.aiScore)}`}>
                           {request.aiScore}%
                         </div>
                         <div className="mt-3 flex justify-center gap-1">
                           {[...Array(5)].map((_, i) => (
-                            <span key={i} className={`text-xl ${i < Math.floor(request.aiScore / 20) ? 'text-yellow-400' : 'text-gray-300'}`}>
+                            <span key={i} className={`text-xl ${i < Math.floor(request.aiScore / 20) ? 'text-yellow-400' : 'text-gray-600'}`}>
                               ⭐
                             </span>
                           ))}
@@ -205,153 +207,4 @@ export default function HospitalDashboard() {
                       <div className="space-y-3">
                         <button
                           onClick={() => setSelectedRequest(request)}
-                          className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
-                        >
-                          <Eye size={20} />
-                          Review
-                        </button>
-                        <button
-                          onClick={() => verifyCase(request.id)}
-                          disabled={loading}
-                          className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                          {loading ? (
-                            <>
-                              <Loader2 size={20} className="animate-spin" />
-                              Verifying...
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle size={20} />
-                              Verify & Approve
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Verified Cases */}
-          {verifiedCases.length > 0 && (
-            <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 md:p-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <Activity size={32} className="text-green-600" />
-                Verified Cases
-              </h2>
-              <div className="space-y-4">
-                {verifiedCases.map((case_) => (
-                  <div key={case_.id} className="border-2 border-green-100 rounded-2xl p-6 bg-green-50/50">
-                    <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-bold text-xl text-gray-900">{case_.patient}</h3>
-                          <span className="px-2 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
-                            ✓ Verified
-                          </span>
-                        </div>
-                        <p className="text-gray-600">{case_.condition}</p>
-                        <p className="text-sm text-gray-500 mt-1">Verified: {case_.verifiedDate}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-600 mb-1">Amount</p>
-                        <p className="text-2xl font-bold text-green-600">{case_.amount} SOL</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Detail Modal */}
-          {selectedRequest && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelectedRequest(null)}>
-              <div className="bg-white rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                <h3 className="text-3xl font-bold text-gray-900 mb-4">{selectedRequest.patient}</h3>
-                <p className="text-gray-600 text-lg mb-6">{selectedRequest.condition}</p>
-
-                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 mb-6 border-2 border-purple-200">
-                  <p className="text-sm text-purple-600 font-bold mb-4 text-center">AI Verification Analysis</p>
-                  <div className={`inline-block w-full text-center px-6 py-3 rounded-xl font-bold text-4xl border-2 ${getAiScoreColor(selectedRequest.aiScore)} mb-4`}>
-                    {selectedRequest.aiScore}%
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="bg-white rounded-lg p-3">
-                      <p className="text-gray-600 mb-1">Authenticity</p>
-                      <p className="font-bold text-green-600">95%</p>
-                    </div>
-                    <div className="bg-white rounded-lg p-3">
-                      <p className="text-gray-600 mb-1">Consistency</p>
-                      <p className="font-bold text-green-600">93%</p>
-                    </div>
-                    <div className="bg-white rounded-lg p-3">
-                      <p className="text-gray-600 mb-1">Medical Validity</p>
-                      <p className="font-bold text-green-600">96%</p>
-                    </div>
-                    <div className="bg-white rounded-lg p-3">
-                      <p className="text-gray-600 mb-1">Risk Level</p>
-                      <p className="font-bold text-green-600">Low</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-sm font-bold text-gray-700 mb-2">Patient Info</p>
-                    <div className="space-y-1 text-sm">
-                      <p><span className="font-semibold">Age:</span> {selectedRequest.age}</p>
-                      <p><span className="font-semibold">Condition:</span> {selectedRequest.condition}</p>
-                      <p><span className="font-semibold">Amount:</span> {selectedRequest.amount} SOL</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-bold text-gray-700 mb-2">Documents</p>
-                    <div className="space-y-2">
-                      {selectedRequest.documents.map((doc, i) => (
-                        <div key={i} className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
-                          <span className="text-sm font-medium text-blue-700">📄 {doc}</span>
-                          <button className="text-blue-600 hover:text-blue-800 text-sm font-semibold">View</button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setSelectedRequest(null)}
-                    className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300"
-                  >
-                    Close
-                  </button>
-                  <button
-                    onClick={() => verifyCase(selectedRequest.id)}
-                    disabled={loading}
-                    className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 size={20} className="animate-spin" />
-                        Verifying...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle size={20} />
-                        Verify
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
+                          className="w-full bg-gradient-to-r from
