@@ -10,7 +10,7 @@ import { requestLoan, postEmergency } from '@/utils/program';
 export default function VendorDashboard() {
   const { connection } = useConnection();
   const wallet = useWallet();
-  const [loanAmount, setLoanAmount] = useState(5000);
+  const [loanAmount, setLoanAmount] = useState(0.5);
   const [loanPurpose, setLoanPurpose] = useState("");
   const [loading, setLoading] = useState(false);
   const [myLoans, setMyLoans] = useState([]);
@@ -19,73 +19,76 @@ export default function VendorDashboard() {
   const [emergencyAmount, setEmergencyAmount] = useState(0);
 
   const handleRequestLoan = async () => {
-    if (!wallet.connected) {
-      toast.error("Please connect your wallet!", {
-        style: { background: '#1e293b', color: '#fff', border: '1px solid #667eea' }
-      });
-      return;
-    }
-
-    if (!loanPurpose || loanPurpose.length < 10) {
-      toast.error("Please provide a detailed purpose (min 10 characters)", {
-        style: { background: '#1e293b', color: '#fff', border: '1px solid #ef4444' }
-      });
-      return;
-    }
-
-    const toastId = toast.loading("🚀 Submitting to Solana blockchain...", {
+  if (!wallet.connected) {
+    toast.error("Please connect your wallet!", {
       style: { background: '#1e293b', color: '#fff', border: '1px solid #667eea' }
     });
-    setLoading(true);
+    return;
+  }
 
-    try {
-      const { signature, loanAccount } = await requestLoan(
-        wallet,
-        connection,
-        loanAmount,
-        loanPurpose
-      );
-      
-      toast.success(
-        <div className="flex flex-col gap-1">
-          <p className="font-bold flex items-center gap-2">
-            <CheckCircle size={18} className="text-green-400" />
-            Loan Request Successful! 🎉
-          </p>
-          <a 
-            href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 text-xs underline hover:text-blue-300"
-          >
-            View on Solana Explorer →
-          </a>
-        </div>,
-        { id: toastId, duration: 6000, style: { background: '#1e293b', color: '#fff', border: '1px solid #10b981' } }
-      );
-      
-      setMyLoans([...myLoans, {
-        id: loanAccount.toString(),
-        amount: loanAmount,
-        repaid: 0,
-        purpose: loanPurpose,
-        creditScore: 0,
-        date: new Date().toLocaleDateString(),
-        signature
-      }]);
-      
-      setLoanAmount(5000);
-      setLoanPurpose("");
-    } catch (error) {
-      console.error("Error requesting loan:", error);
-      toast.error(`Failed: ${error.message}`, { 
-        id: toastId,
-        style: { background: '#1e293b', color: '#fff', border: '1px solid #ef4444' }
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!loanPurpose || loanPurpose.length < 10) {
+    toast.error("Please provide a detailed purpose (min 10 characters)", {
+      style: { background: '#1e293b', color: '#fff', border: '1px solid #ef4444' }
+    });
+    return;
+  }
+
+  const toastId = toast.loading("🚀 Submitting to Solana blockchain...", {
+    style: { background: '#1e293b', color: '#fff', border: '1px solid #667eea' }
+  });
+  setLoading(true);
+
+  try {
+    // Convert SOL to lamports for the contract
+    const amountInLamports = loanAmount * 1e9; // 1 SOL = 1 billion lamports
+
+    const { signature, loanAccount } = await requestLoan(
+      wallet,
+      connection,
+      amountInLamports, // Send lamports to contract
+      loanPurpose
+    );
+    
+    toast.success(
+      <div className="flex flex-col gap-1">
+        <p className="font-bold flex items-center gap-2">
+          <CheckCircle size={18} className="text-green-400" />
+          Loan Request Successful! 🎉
+        </p>
+        <a 
+          href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 text-xs underline hover:text-blue-300"
+        >
+          View on Solana Explorer →
+        </a>
+      </div>,
+      { id: toastId, duration: 6000, style: { background: '#1e293b', color: '#fff', border: '1px solid #10b981' } }
+    );
+    
+    setMyLoans([...myLoans, {
+      id: loanAccount.toString(),
+      amount: loanAmount, // Store in SOL for display
+      repaid: 0,
+      purpose: loanPurpose,
+      creditScore: 0,
+      date: new Date().toLocaleDateString(),
+      signature
+    }]);
+    
+    setLoanAmount(0.5); // Reset to 0.5 SOL (not 5000)
+    setLoanPurpose("");
+  } catch (error) {
+    console.error("Error requesting loan:", error);
+    toast.error(`Failed: ${error.message}`, { 
+      id: toastId,
+      style: { background: '#1e293b', color: '#fff', border: '1px solid #ef4444' }
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleEncryptedUpload = async (encryptedData) => {
     if (!wallet.connected) {
@@ -111,7 +114,7 @@ export default function VendorDashboard() {
         emergencyDesc,
         encryptedData.hash
       );
-      
+
       toast.success(
         <div className="flex flex-col gap-1">
           <p className="font-bold flex items-center gap-2">
@@ -119,7 +122,7 @@ export default function VendorDashboard() {
             Emergency Posted Successfully! 🏥
           </p>
           <p className="text-xs text-gray-300">AI Score: {encryptedData.score}%</p>
-          <a 
+          <a
             href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
             target="_blank"
             rel="noopener noreferrer"
@@ -130,7 +133,7 @@ export default function VendorDashboard() {
         </div>,
         { id: toastId, duration: 6000, style: { background: '#1e293b', color: '#fff', border: '1px solid #10b981' } }
       );
-      
+
       setEmergencyDesc("");
       setEmergencyAmount(0);
     } catch (error) {
@@ -146,7 +149,7 @@ export default function VendorDashboard() {
       <Toaster position="top-right" toastOptions={{
         className: 'toast-notification'
       }} />
-      
+
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
@@ -177,7 +180,7 @@ export default function VendorDashboard() {
             <div className="absolute top-4 right-4">
               <Sparkles className="text-yellow-400 animate-pulse" size={32} />
             </div>
-            
+
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="text-center md:text-left">
                 <p className="text-purple-300 mb-3 text-lg font-medium flex items-center gap-2 justify-center md:justify-start">
@@ -198,7 +201,7 @@ export default function VendorDashboard() {
                   </span>
                 </div>
               </div>
-              
+
               <div className="glass rounded-2xl p-6 border border-purple-500/30">
                 <p className="text-purple-300 mb-2 text-sm">Available Credit</p>
                 <h3 className="text-4xl font-bold text-white flex items-center gap-2">
@@ -220,29 +223,32 @@ export default function VendorDashboard() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white">Request Micro-Loan</h2>
-                  <p className="text-gray-400">2,000 - 10,000 Lamports</p>
+                  <p className="text-gray-400">0.1 - 5 SOL</p>
                 </div>
               </div>
 
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-bold text-gray-300 mb-3">
-                    Loan Amount (Lamports)
+                    Loan Amount (SOL)
                   </label>
                   <input
                     type="range"
-                    min="2000"
-                    max="10000"
-                    step="500"
+                    min="0.1"
+                    max="5"
+                    step="0.1"
                     value={loanAmount}
-                    onChange={(e) => setLoanAmount(parseInt(e.target.value))}
+                    onChange={(e) => setLoanAmount(parseFloat(e.target.value))} 
                     className="w-full h-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg appearance-none cursor-pointer accent-purple-500"
                   />
                   <div className="text-center mt-3">
                     <span className="text-4xl font-black text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text">
-                      {loanAmount}
+                      {loanAmount.toFixed(1)} {/* Show 1 decimal place */}
                     </span>
-                    <span className="text-gray-400 ml-2">lamports</span>
+                    <span className="text-gray-400 ml-2">SOL</span>
+                    <p className="text-xs text-gray-500 mt-2">
+                      ≈ ₹{(loanAmount * 10000).toLocaleString()} {/* Rough conversion for context */}
+                    </p>
                   </div>
                 </div>
 
@@ -338,13 +344,13 @@ export default function VendorDashboard() {
               </h2>
               <div className="space-y-4">
                 {myLoans.map((loan) => (
-                  <div 
-                    key={loan.id} 
+                  <div
+                    key={loan.id}
                     className="glass rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300 border border-white/10 card-hover"
                   >
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                       <div className="flex-1">
-                        <h3 className="font-bold text-xl text-white mb-1">{loan.amount} Lamports</h3>
+                        <h3 className="font-bold text-xl text-white mb-1">{loan.amount} Sol </h3>
                         <p className="text-gray-400 text-sm mb-2">{loan.purpose}</p>
                         <p className="text-xs text-gray-500">
                           {loan.date} • {loan.id.slice(0, 8)}...
