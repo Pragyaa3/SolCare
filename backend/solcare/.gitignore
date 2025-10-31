@@ -3,5 +3,9 @@
 target
 **/*.rs.bk
 node_modules
+backend-api/node_modules/
 test-ledger
 .yarn
+.env
+.env.local
+.env.*.local
